@@ -11,7 +11,9 @@ import 'font-awesome/css/font-awesome.min.css'
 Vue.config.productionTip = false
 Vue.use(Element)
 Vue.use(VueRouter)
-
+import axios from 'axios'
+axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest';
+Vue.prototype.$http = axios
 
 
 const router  = new VueRouter({

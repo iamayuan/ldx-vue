@@ -5,7 +5,7 @@ import Login from './views/Login.vue'
 import Electrical from './views/SystemManage/Electrical.vue'
 import Personnel from './views/SystemManage/Personnel.vue'
 import Menu from './views/SystemManage/Menu.vue'
-import Activity from './views/SystemManage/Activity.vue'
+import Activityset from './views/SystemManage/Activity.vue'
 import Parameter from './views/SystemManage/Parameter.vue'
 import Push from './views/SystemManage/Push.vue'
 import Errorlog from './views/QueryStatic/ErrorLog.vue'
@@ -15,6 +15,14 @@ import Account from './views/UserManage/Account.vue'
 import Wechat from './views/UserManage/Wechat.vue'
 import Template from './views/ExportData/Template.vue'
 import Weekly from './views/ExportData/Weekly.vue'
+import Monthly from './views/ExportData/Monthly.vue'
+import FeedBack from './views/Business/FeedBack.vue'
+import Pay from './views/Business/Pay.vue'
+import Recharge from './views/Business/Recharge.vue'
+import RunOne from './views/Business/RunOne.vue'
+import Help from './views/Operation/Help.vue'
+import Activity from './views/Operation/Activity.vue'
+import HeadLine from './views/Operation/HeadLine.vue'
 import Vhome from './views/vHome.vue'
 let routes = [
     {
@@ -26,7 +34,7 @@ let routes = [
     {
         path: '/vhome',
         component: Vhome,
-        name: '404',
+        name: 'Vhome',
         hidden: true
     },
 
@@ -38,7 +46,7 @@ let routes = [
     },
     {
         path: '/',
-        component: Home,
+        component: Vhome,
         name: '系统管理',
         iconCls: 'el-icon-message',//图标样式class
         children: [
@@ -50,8 +58,8 @@ let routes = [
                     component: Parameter, 
                     name: '参数设置',
                 },{
-                    path: '/activity', 
-                    component: Activity, 
+                    path: '/activityset', 
+                    component: Activityset, 
                     name: '活动设置',
                 },{
                     path: '/push', 
@@ -79,7 +87,7 @@ let routes = [
     },
     {
         path: '/',
-        component: Home,
+        component: Vhome,
         name: '查询统计',
         iconCls: 'el-icon-message',
         children: [
@@ -90,7 +98,7 @@ let routes = [
     },
     {
         path: '/',
-        component: Home,
+        component:Vhome,
         name: '用户管理',
         iconCls: 'el-icon-message',
         children: [
@@ -101,26 +109,41 @@ let routes = [
     },
     {
         path: '/',
-        component: Home,
+        component: Vhome,
         name: '数据导出',
         iconCls: 'el-icon-message',
         children: [
             { path: '/template', component: Template, name: '模板维护',leaf: true, },
-            { path: '/weekly', component: Weekly, name: '周报' ,leaf: true,}
+            { path: '/weekly', component: Weekly, name: '周报' ,leaf: true,},
+            { path: '/monthly', component: Monthly, name: '月报' ,leaf: true,}
 
         ]
     },
-/*    {
+    {
         path: '/',
-        component: Home,
-        name: '单个管理',
+        component: Vhome,
+        name: '业务管理',
         iconCls: 'el-icon-message',
-        leaf: true,//只有一个节点
         children: [
-            { path: '/account', component: Account, name: '微信账号',leaf: true, }
+            { path: '/pay', component: Pay, name: '缴费记录',leaf: true},
+            { path: '/recharge', component: Recharge, name: '充值记录' ,leaf: true},
+            { path: '/feedback', component: FeedBack, name: '意见反馈' ,leaf: true},
+            { path: '/runone', component: RunOne, name: '只跑一次' ,leaf: true}
 
         ]
-    },*/
+    },
+    {
+        path: '/',
+        component: Vhome,
+        name: '运营管理',
+        iconCls: 'el-icon-message',
+        children: [
+            { path: '/help', component: Help, name: '使用帮助',leaf: true},
+            { path: '/activity', component: Activity, name: '活动管理' ,leaf: true},
+            { path: '/headline', component: HeadLine, name: '电力头条' ,leaf: true}
+
+        ]
+    },
     {
         path: '*',
         hidden: true,

@@ -7,6 +7,7 @@ export default {
   /**
    * mock bootstrap
    */
+  
   bootstrap() {
     let mock = new MockAdapter(axios);
 
@@ -147,7 +148,10 @@ export default {
         }, 1000);
       });
     });
+    //查询微信用户列表接口
 
 
-  }
+  },
+  
+
 };

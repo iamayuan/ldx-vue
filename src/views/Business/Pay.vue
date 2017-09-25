@@ -1,23 +1,36 @@
 <template>
-  <section class="Month">
-    <div class="Month-header">
-        <el-form ref="form" :model="MonthForm" >
-          <el-form-item label="月报时间">
-            <el-date-picker v-model="MonthForm.Time" type="daterange" placeholder="选择关注时间">
+  <section class="Pay">
+    <div class="Pay-header">
+        <el-form ref="form" :model="payForm" >
+          <el-form-item label="账单月份" class="w50">
+            <el-date-picker v-model="payForm.billTime" type="date" placeholder="选择日期">
             </el-date-picker>
           </el-form-item>
-          <el-form-item label="月报地市" >
-              <el-input placeholder="输入地区"  v-model="MonthForm.MonthArea" class="w70"></el-input>
+          <el-form-item label="户号" class="w50">
+                <el-input placeholder="输入户号"  class="displayiB w70" v-model="payForm.accountId"></el-input>
+          </el-form-item>
+          <el-form-item label="支付时间" class="w50">
+              <el-date-picker v-model="payForm.payTime"  type="daterange" placeholder="选择日期范围"></el-date-picker>
+          </el-form-item>
+          <el-form-item label="户主" class="w50">
+            <el-input placeholder="输入户主"  class="displayiB w70" v-model="payForm.accountName"></el-input>
+          </el-form-item>
+          <el-form-item label="供电所" class="w50">
+            <el-input class="displayiB w70" v-model="payForm.power"></el-input>
+          </el-form-item>
+          <el-form-item label="市" class="w50">
+            <el-input class="displayiB w70" v-model="payForm.accountArea"></el-input>
           </el-form-item>
           <el-form-item>
             <div class="button-group floatR">
                 <el-button type="primary" @click="onQuery">查询</el-button>
+                <el-button @click="onExport">导出</el-button>
             </div>
           </el-form-item>
         </el-form>
         
     </div>
-    <div class="Month-content">
+    <div class="Pay-content">
         <el-table 
         :data="tableData" borderstyle="width: 100%":default-sort = "{prop: 'date', order: 'descending'}">
             <el-table-column type="selection"  width="55">
@@ -40,7 +53,7 @@
                   </template>
             </el-table-column>
         </el-table>
-        <el-row class="Month-pagin">
+        <el-row class="Pay-pagin">
             <el-col :span="24">
                 <el-pagination
                   @size-change="handleSizeChange"
@@ -62,9 +75,13 @@ import axios from 'axios'
 export default {
     data() {
       return {
-        MonthForm:{
-            Time:'',
-            MonthArea:''
+        payForm:{
+            billTime: '',
+            payTime: '',
+            accountId:'',
+            accountName:'',
+            accountArea:'',
+            power:''
         }, 
         currentPage: 1,
         tableData: [{
@@ -107,11 +124,42 @@ export default {
       },
       onExport(){
         console.log(`导出`);
+      },
+      getWechatPage() {
+        /*let para = {
+            pageNum:1,
+            perPageNum:10
+        };
+        this.listLoading = true;
+        getWechatList(para).then((res) => {
+            console.log(res)
+        });*/
+    /*    let url = 'https://bird.ioliu.cn/v1/?url=https://api.douban.com/v2/movie/in_theaters?count=10&start=0';
+          this.$http.get(url).then((response) => {
+            // success
+            console.log(response.data.subjects)
+            this.loading = false;
+            console.log(response.data.subjects[0])
+            response.data.subjects.forEach(todo=>{
+              this.todos.push(todo);
+            })
+          }, (error) => {
+            // error
+            console.log('error')
+          });*/
+      axios.get('http://192.168.253.16:8080/userManage/getUserList?pageNum=1&perPageNum=2&openId=1')
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function (response) {
+          console.log('error'+response);
+        });
+
       }
 
     },
     mounted() {
-        //this.getWechatPage();
+        this.getWechatPage();
         console.log('1');
         console.log(axios)
        
@@ -121,22 +169,5 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
 </style>
-

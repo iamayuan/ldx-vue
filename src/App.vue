@@ -1,19 +1,10 @@
 <template>
-      <div id="app">
-            <router-view></router-view>
-      </div>
-    </template>
-
-    <script>
-
-    export default {
-      name: 'app',
-      data: function (){
-        return {
-          
-        }
-      }
-    }
-    </script>
+    <div id="app">
+        <router-view></router-view>
+    </div>
+</template>
+<style>
+    @import "../static/css/main.css";
+</style>
 
 

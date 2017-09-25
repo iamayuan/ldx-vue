@@ -1,3 +1,4 @@
+/*common*/
 *{margin:0;padding:0;}
 html,body,#app,.wrapper{
     width:100%;
@@ -8,6 +9,69 @@ body{
     font-family:"Helvetica Neue",Helvetica, "microsoft yahei", arial, STHeiTi, sans-serif;
 }
 a{text-decoration: none}
+.col-row {
+    padding: 8px 15px;
+}
+.marginTb{
+    margin:8px 0;
+}
+.textR{
+    text-align: right;
+}
+.floatR{
+    float: right;
+}
+.displayiB{
+    display: inline-block;
+}
+.displayB{
+    display: block!important;
+}
+.w70{
+    width: 70%;
+    display: inline-block;
+}
+.w50{
+    width: 49%;
+    display: inline-block;
+}
+.w25{
+    width: 24%;
+    display: inline-block;
+}
+/*header*/
+.wrapper header {
+    height: 60px;
+    line-height: 60px;
+    background: #20a0ff;
+    color:#fff;
+}
+.wrapper .logo{
+    float: left;
+    width: 250px;
+    text-align: center;
+}
+.userinfo-inner img{
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    margin: 15px 0px 10px 10px;
+    float: right;
+}
+/*aside*/
+.sidebar{
+    display: block;
+    position: absolute;
+    width: 250px;
+    left: 0;
+    top: 70px;
+    bottom:0;
+    background: #eef1f6;
+}
+.sidebar > ul {
+    height:100%;
+}
+/*content*/
 .content{
     background: none repeat scroll 0 0 #fff;
     position: absolute;
@@ -19,6 +83,7 @@ a{text-decoration: none}
     padding:40px;
     box-sizing: border-box;
     overflow-y: scroll;
+
 }
 .crumbs{
     margin-bottom: 20px;
@@ -47,6 +112,13 @@ a{text-decoration: none}
 }
 .move-enter,.move-leave{
     opacity: 0;
+}
+/*用户管理-微信账号*/
+.wechat-pagin{
+    margin-top: 10px;
+}
+.el-form-item label{
+    width: 70px;
 }
 /*BaseForm*/
 .form-box{

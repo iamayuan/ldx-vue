@@ -13,6 +13,7 @@ export const createMenu = params => { return axios.post(`${host}/sys/menu/group/
 export const deleteMenu = params => { return axios.post(`${host}/sys/menu/group/delete`, { params: params }); };*/
 import axios from 'axios';
 
+
 let base = '';
 //登录
 export const requestLogin = params => { return axios.post(`${base}/login`, params).then(res => res.data); };
@@ -47,3 +48,8 @@ export const removeUser = params => { return axios.get(`${base}/user/remove`, { 
 export const editUser = params => { return axios.get(`${base}/user/edit`, { params: params }); };
 
 export const addUser = params => { return axios.get(`${base}/user/add`, { params: params }); };
+
+/*-----微信用户-----*/
+
+//查询微信用户列表接口
+export const  getWechatList = params => { return axios.get(`${base}/userManage/getUserList`, { params: params }); };
