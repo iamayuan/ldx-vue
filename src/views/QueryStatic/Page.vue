@@ -1,76 +1,90 @@
 <template>
-  <div class="hello">
-    <label>关注时间</label>
-    <el-input></el-input>
-    <label>关注时间</label>
-    <el-input></el-input>
-    <label>地区</label>
-    <el-input></el-input>
-    <label>用户id</label>
-    <el-input></el-input>
-    <label>用户昵称</label>
-    <el-input></el-input>
-    <el-button>查询</el-button>
-    <el-button>导出</el-button>
-    <el-table
-        :data="tableData"
-        border
-        style="width: 100%"
-        :default-sort = "{prop: 'date', order: 'descending'}"
-        >
-        <el-table-column
-              type="selection"
-              width="55">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="日期"
-          sortable
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          label="姓名"
-          sortable
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="地址"
-          :formatter="formatter">
-        </el-table-column>
-      </el-table>
-      <el-col :span="12">
-                <div id="chartLine" style="width:100%; height:400px;"></div>
-            </el-col>
-            <el-col :span="12">
-                <div id="chartPie" style="width:100%; height:400px;"></div>
-            </el-col>
-      <div class="block">
-        <span class="demonstration">调整每页显示条数</span>
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="currentPage2"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
-          layout="sizes, prev, pager, next"
-          :total="1000">
-        </el-pagination>
-      </div>
-
-  </div>
+  <section class="page">
+    <div class="page-header">
+        <el-form ref="form" :model="pageForm" >
+          <el-form-item label="统计页面" class="w50">
+            <el-select placeholder="缴费充值" class="page-select" v-model="pageForm.pages">
+                <el-option label="缴费充值" value="0" class="displayB"></el-option>
+                <el-option label="未关注" value="1" class="displayB"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="统计时间" class="w50">
+              <el-date-picker v-model="pageForm.Time"  type="date" placeholder="选择日期"></el-date-picker>
+              <el-button type="primary" @click="onQuery">查询</el-button>
+          </el-form-item>
+        </el-form>
+        
+    </div>
+    <div class="page-content">
+        <el-col :span="12">
+          <div id="chartLine" style="width:100%; height:400px;"></div>
+        </el-col>
+        <el-col :span="12">
+          <div id="chartPie" style="width:100%; height:400px;"></div>
+        </el-col>
+        <el-col :span="8">
+          <div id="chartPie1" style="width:100%; height:400px;"></div>
+          <div id="chartPie2" style="width:100%; height:400px;"></div>
+          <div id="chartPie3" style="width:100%; height:400px;"></div>
+        </el-col>
+        <el-col :span="16">
+        <el-table 
+        :data="tableData" borderstyle="width: 100%":default-sort = "{prop: 'date', order: 'descending'}">
+            <el-table-column type="selection"  width="55">
+            </el-table-column>
+            <el-table-column  prop="date" label="日期" sortable width="180">
+            </el-table-column>
+            <el-table-column prop="name" label="姓名" sortable width="180">
+            </el-table-column>
+            <el-table-column  prop="address" label="地址"  sortable :formatter="formatter">
+            </el-table-column>
+            <el-table-column label="操作">
+                  <template scope="scope">
+                    <el-button
+                      size="small"
+                      @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button
+                      size="small"
+                      type="danger"
+                      @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                  </template>
+            </el-table-column>
+        </el-table>
+            <el-row class="page-pagin">
+                <el-col :span="24">
+                    <el-pagination
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page.sync="currentPage"
+                      :page-sizes="[10, 20, 30, 40]"
+                      :page-size="100"
+                      layout="sizes, prev, pager, next"
+                      :total="50">
+                    </el-pagination>
+                </el-col>
+        </el-row>
+        </el-col>
+        
+    </div>
+  </section>
 </template>
+
 
 <script>
 import echarts from 'echarts'
 export default {
     data() {
       return {
-        value6: '',
-        value7: '',
+        pageForm:{
+            pages: '',
+            Time: ''
+        }, 
+        currentPage: 1,
         chartLine: null,
         chartPie: null,
+        chartPie1: null,
+        chartPie2: null,
+        chartPie3: null,
         tableData: [{
                  date: '2016-05-02',
                  name: '王小虎',
@@ -183,10 +197,151 @@ export default {
               ]
           });
       },
+      drawPieChart1() {
+          this.chartPie = echarts.init(document.getElementById('chartPie1'));
+          this.chartPie.setOption({
+              title: {
+                  text: 'Pie Chart',
+                  subtext: '纯属虚构',
+                  x: 'center'
+              },
+              tooltip: {
+                  trigger: 'item',
+                  formatter: "{a} <br/>{b} : {c} ({d}%)"
+              },
+              legend: {
+                  orient: 'vertical',
+                  left: 'left',
+                  data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+              },
+              series: [
+                  {
+                      name: '访问来源',
+                      type: 'pie',
+                      radius: '55%',
+                      center: ['50%', '60%'],
+                      data: [
+                          { value: 335, name: '直接访问' },
+                          { value: 310, name: '邮件营销' },
+                          { value: 234, name: '联盟广告' },
+                          { value: 135, name: '视频广告' },
+                          { value: 1548, name: '搜索引擎' }
+                      ],
+                      itemStyle: {
+                          emphasis: {
+                              shadowBlur: 10,
+                              shadowOffsetX: 0,
+                              shadowColor: 'rgba(0, 0, 0, 0.5)'
+                          }
+                      }
+                  }
+              ]
+          });
+      },
+      drawPieChart2() {
+          this.chartPie = echarts.init(document.getElementById('chartPie2'));
+          this.chartPie.setOption({
+              title: {
+                  text: 'Pie Chart',
+                  subtext: '纯属虚构',
+                  x: 'center'
+              },
+              tooltip: {
+                  trigger: 'item',
+                  formatter: "{a} <br/>{b} : {c} ({d}%)"
+              },
+              legend: {
+                  orient: 'vertical',
+                  left: 'left',
+                  data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+              },
+              series: [
+                  {
+                      name: '访问来源',
+                      type: 'pie',
+                      radius: '55%',
+                      center: ['50%', '60%'],
+                      data: [
+                          { value: 335, name: '直接访问' },
+                          { value: 310, name: '邮件营销' },
+                          { value: 234, name: '联盟广告' },
+                          { value: 135, name: '视频广告' },
+                          { value: 1548, name: '搜索引擎' }
+                      ],
+                      itemStyle: {
+                          emphasis: {
+                              shadowBlur: 10,
+                              shadowOffsetX: 0,
+                              shadowColor: 'rgba(0, 0, 0, 0.5)'
+                          }
+                      }
+                  }
+              ]
+          });
+      },
+      drawPieChart3() {
+          this.chartPie = echarts.init(document.getElementById('chartPie3'));
+          this.chartPie.setOption({
+              title: {
+                  text: 'Pie Chart',
+                  subtext: '纯属虚构',
+                  x: 'center'
+              },
+              tooltip: {
+                  trigger: 'item',
+                  formatter: "{a} <br/>{b} : {c} ({d}%)"
+              },
+              legend: {
+                  orient: 'vertical',
+                  left: 'left',
+                  data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+              },
+              series: [
+                  {
+                      name: '访问来源',
+                      type: 'pie',
+                      radius: '55%',
+                      center: ['50%', '60%'],
+                      data: [
+                          { value: 335, name: '直接访问' },
+                          { value: 310, name: '邮件营销' },
+                          { value: 234, name: '联盟广告' },
+                          { value: 135, name: '视频广告' },
+                          { value: 1548, name: '搜索引擎' }
+                      ],
+                      itemStyle: {
+                          emphasis: {
+                              shadowBlur: 10,
+                              shadowOffsetX: 0,
+                              shadowColor: 'rgba(0, 0, 0, 0.5)'
+                          }
+                      }
+                  }
+              ]
+          });
+      },
+      handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+      },
+      handleCurrentChange(val) {
+        console.log(`当前页: ${val}`);
+      },
+      handleEdit(index, row) {
+        console.log(index, row);
+      },
+      handleDelete(index, row) {
+        console.log(index, row);
+      },
+      onQuery(){
+        console.log(`查询`);
+      },
       drawCharts() {
           this.drawLineChart()
           this.drawPieChart()
-      },
+          this.drawPieChart1()
+          this.drawPieChart2()
+          this.drawPieChart3()
+      }
     },
 
 	mounted: function () {

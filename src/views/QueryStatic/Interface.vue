@@ -1,74 +1,78 @@
 <template>
-  <div class="hello">
-    <label>关注时间</label>
-    <el-input></el-input>
-    <label>关注时间</label>
-    <el-input></el-input>
-    <label>地区</label>
-    <el-input></el-input>
-    <label>用户id</label>
-    <el-input></el-input>
-    <label>用户昵称</label>
-    <el-input></el-input>
-    <el-button>查询</el-button>
-    <el-button>导出</el-button>
-    <el-table
-        :data="tableData"
-        border
-        style="width: 100%"
-        :default-sort = "{prop: 'date', order: 'descending'}"
-        >
-        <el-table-column
-              type="selection"
-              width="55">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="日期"
-          sortable
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          label="姓名"
-          sortable
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="address"
-          label="地址"
-          :formatter="formatter">
-        </el-table-column>
-      </el-table>
-      <el-col :span="12">
-                <div id="chartLine" style="width:100%; height:400px;"></div>
-            </el-col>
-            <el-col :span="12">
-                <div id="chartPie" style="width:100%; height:400px;"></div>
-            </el-col>
-      <div class="block">
-        <span class="demonstration">调整每页显示条数</span>
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="currentPage2"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
-          layout="sizes, prev, pager, next"
-          :total="1000">
-        </el-pagination>
-      </div>
-
-  </div>
+  <section class="interface">
+    <div class="interface-header">
+        <el-form ref="form" :model="interfaceForm" >
+          <el-form-item label="统计接口" class="w50">
+            <el-select placeholder="缴费充值" class="interface-select" v-model="interfaceForm.api">
+                <el-option label="LSSP_00000333" value="0" class="displayB"></el-option>
+                <el-option label="未关注" value="1" class="displayB"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="统计时间" class="w50">
+              <el-date-picker v-model="interfaceForm.Time"  type="date" placeholder="选择日期"></el-date-picker>
+              <el-button type="primary" @click="onQuery">查询</el-button>
+          </el-form-item>
+        </el-form>
+        
+    </div>
+    <div class="interface-content">
+        <el-col :span="12">
+          <div id="chartLine" style="width:100%; height:400px;"></div>
+        </el-col>
+        <el-col :span="12">
+          <div id="chartPie" style="width:100%; height:400px;"></div>
+        </el-col>
+        <el-table 
+        :data="tableData" borderstyle="width: 100%":default-sort = "{prop: 'date', order: 'descending'}">
+            <el-table-column type="selection"  width="55">
+            </el-table-column>
+            <el-table-column  prop="date" label="日期" sortable width="180">
+            </el-table-column>
+            <el-table-column prop="name" label="姓名" sortable width="180">
+            </el-table-column>
+            <el-table-column  prop="address" label="地址"  sortable :formatter="formatter">
+            </el-table-column>
+            <el-table-column label="操作">
+                  <template scope="scope">
+                    <el-button
+                      size="small"
+                      @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                    <el-button
+                      size="small"
+                      type="danger"
+                      @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                  </template>
+            </el-table-column>
+        </el-table>
+            <el-row class="interface-pagin">
+                <el-col :span="24">
+                    <el-pagination
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page.sync="currentpage"
+                      :page-sizes="[10, 20, 30, 40]"
+                      :page-size="100"
+                      layout="sizes, prev, pager, next"
+                      :total="50">
+                    </el-pagination>
+                </el-col>
+        </el-row>
+        
+    </div>
+  </section>
 </template>
+
 
 <script>
 import echarts from 'echarts'
 export default {
     data() {
       return {
-        value6: '',
-        value7: '',
+        interfaceForm:{
+            api: '',
+            Time: ''
+        }, 
+        currentPage: 1,
         chartLine: null,
         chartPie: null,
         tableData: [{
@@ -183,18 +187,33 @@ export default {
               ]
           });
       },
+      handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+      },
+      handleCurrentChange(val) {
+        console.log(`当前页: ${val}`);
+      },
+      handleEdit(index, row) {
+        console.log(index, row);
+      },
+      handleDelete(index, row) {
+        console.log(index, row);
+      },
+      onQuery(){
+        console.log(`查询`);
+      },
       drawCharts() {
           this.drawLineChart()
           this.drawPieChart()
-      },
+      }
     },
 
-	mounted: function () {
-	    this.drawCharts()
-	},
-	updated: function () {
-	    this.drawCharts()
-	}
+  mounted: function () {
+      this.drawCharts()
+  },
+  updated: function () {
+      this.drawCharts()
+  }
   };
 </script>
 

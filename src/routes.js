@@ -24,65 +24,31 @@ import Help from './views/Operation/Help.vue'
 import Activity from './views/Operation/Activity.vue'
 import HeadLine from './views/Operation/HeadLine.vue'
 import Vhome from './views/vHome.vue'
+import vContent from './components/common/Content.vue'
+import Sidebar from './components/common/Sidebar.vue'
+import Empoty from './components/common/Empoty.vue'
+import Intro from './components/common/Intro.vue'
+import main from './components/Hello.vue'
 let routes = [
     {
         path: '/login',
         component: Login,
         name: 'login',
-        hidden: true
+        hidden: true//定义这个路径，并隐藏
     },
     {
-        path: '/vhome',
-        component: Vhome,
-        name: 'Vhome',
-        hidden: true
-    },
-
-    {
-        path: '/404',
-        component: NotFound,
-        name: '404',
-        hidden: true
+        path: '*',
+        hidden: true,
+        redirect: { path: '/404' }
     },
     {
         path: '/',
         component: Vhome,
-        name: '系统管理',
-        iconCls: 'el-icon-message',//图标样式class
+        name: '',
+        leaf: true,//只有一个节点
+        iconCls: 'el-icon-message',
         children: [
-            {   path: '/home', 
-                component: Home,
-                name: '系统设置' ,
-                children:[{
-                    path: '/parameter', 
-                    component: Parameter, 
-                    name: '参数设置',
-                },{
-                    path: '/activityset', 
-                    component: Activityset, 
-                    name: '活动设置',
-                },{
-                    path: '/push', 
-                    component: Push, 
-                    name: '推送设置',
-                }]
-            },
-            {
-                path: '/electrical', 
-                component: Electrical,
-                leaf: true,//只有一个节点，下面没有了
-                name: '电小二管理' 
-            },
-            {   path: '/personnel',
-                component:Personnel,
-                leaf: true,
-                name: '人员管理'
-            },
-            {   path: '/menu',
-                component: Menu, 
-                leaf: true,
-                name: '菜单管理'
-            }
+            { path: '/intro', component: Intro, name: '自述' }
         ]
     },
     {
@@ -94,6 +60,51 @@ let routes = [
             { path: '/page', component: Page, name: '页面访问',leaf: true },
             { path: '/interface', component: Interface, name: '接口访问',leaf: true},
             { path: '/errorlog', component: Errorlog, name: '错误日志',leaf: true }
+        ]
+    },
+    {
+        path: '/',
+        component: Vhome,
+        name: '系统管理',
+        iconCls: 'el-icon-message',//图标样式class
+        children: [
+            {   path: '/electrical', 
+                component: Electrical,
+                name: '系统设置' ,
+                children:[{
+                    path: '/parameter', 
+                    component: Parameter, 
+                    name: '参数设置',
+                    hidden:true,//隐藏
+                },{
+                    path: '/activityset', 
+                    component: Activityset, 
+                    name: '活动设置'
+                },{
+                    path: '/push', 
+                    component: Push, 
+                    name: '推送设置'
+                }]
+            },
+            {
+                path: '/electrical', 
+                component: Electrical,
+                leaf: true,//只有一个节点，下面没有了
+                name: '电小二管理',
+                children:[] 
+            },
+            {   path: '/personnel',
+                component:Personnel,
+                leaf: true,
+                name: '人员管理',
+                children:[] 
+            },
+            {   path: '/menu',
+                component: Menu, 
+                leaf: true,
+                name: '菜单管理',
+                children:[] 
+            }
         ]
     },
     {
@@ -143,11 +154,6 @@ let routes = [
             { path: '/headline', component: HeadLine, name: '电力头条' ,leaf: true}
 
         ]
-    },
-    {
-        path: '*',
-        hidden: true,
-        redirect: { path: '/404' }
     }
 ];
 
