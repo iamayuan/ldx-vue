@@ -74,9 +74,6 @@
 </template>
 
 <script>
-import util from '../../common/js/util'
-import { getWechatList } from '../../api/api';
-import axios from 'axios'
 export default {
     data() {
       return {
@@ -130,43 +127,30 @@ export default {
       onExport(){
         console.log(`导出`);
       },
-      getWechatPage() {
-        /*let para = {
-            pageNum:1,
-            perPageNum:10
-        };
-        this.listLoading = true;
-        getWechatList(para).then((res) => {
-            console.log(res)
-        });*/
-    /*    let url = 'https://bird.ioliu.cn/v1/?url=https://api.douban.com/v2/movie/in_theaters?count=10&start=0';
-          this.$http.get(url).then((response) => {
-            // success
-            console.log(response.data.subjects)
-            this.loading = false;
-            console.log(response.data.subjects[0])
-            response.data.subjects.forEach(todo=>{
-              this.todos.push(todo);
-            })
-          }, (error) => {
-            // error
-            console.log('error')
-          });*/
-      axios.get('http://192.168.253.16:8080/userManage/getUserList?pageNum=1&perPageNum=2&openId=1')
-        .then(function (response) {
-          console.log(response);
-        })
-        .catch(function (response) {
-          console.log('error'+response);
-        });
-
+      fetchData: async function () {
+        let params = {
+        }
+        const res = await http.get(api.right, params)
+        if (res) {
+          console.log(res)
+          //alert('请求成功')
+        }
+      },fetch(){
+        this.$http.get('https://cnodejs.org/api/v1/topic/5433d5e4e737cbe96dcef312 ').then((response) => {
+            console.log(response+'success');
+          })
+          .catch(function (error) {
+            console.log(error+'error');
+          });
       }
 
     },
     mounted() {
-        this.getWechatPage();
+        
+        //this.fetchData();
+        this.fetch();
         console.log('1');
-        console.log(axios)
+        
        
     }
   };

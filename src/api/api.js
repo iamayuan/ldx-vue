@@ -53,3 +53,5 @@ export const addUser = params => { return axios.get(`${base}/user/add`, { params
 
 //查询微信用户列表接口
 export const  getWechatList = params => { return axios.get(`${base}/userManage/getUserList`, { params: params }); };
+
+export const  getDou = params => { return axios.get('https://cnodejs.org/api/v1/topic/5433d5e4e737cbe96dcef312', { params: params }); };

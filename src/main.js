@@ -2,8 +2,8 @@ import Vue from 'vue'
 import App from './App'
 import Element from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'
+import axios from 'axios'
 import VueRouter from 'vue-router'
-
 import routes from './routes'
 import Mock from './mock'
 Mock.bootstrap();
@@ -11,10 +11,9 @@ import 'font-awesome/css/font-awesome.min.css'
 Vue.config.productionTip = false
 Vue.use(Element)
 Vue.use(VueRouter)
-import axios from 'axios'
-axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest';
-Vue.prototype.$http = axios
 
+Vue.prototype.$http = axios
+global.API_PROXY = 'https://bird.ioliu.cn/v1/?url='
 
 const router  = new VueRouter({
     routes
