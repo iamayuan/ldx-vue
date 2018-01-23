@@ -1,5 +1,10 @@
 /*common*/
-*{margin:0;padding:0;}
+body, dl, dd, h1, h2, h3, h4, h5, h6, p, form{margin:0;} 
+ol,li,ul{
+    margin:0; 
+    padding:0;
+    list-style-type: none;
+}
 html,body,#app,.wrapper{
     width:100%;
     height:100%;
@@ -7,6 +12,17 @@ html,body,#app,.wrapper{
 }
 body{
     font-family:"Helvetica Neue",Helvetica, "microsoft yahei", arial, STHeiTi, sans-serif;
+}
+.clearfix:after{
+    content: '';
+    height: 0;
+    line-height: 0;
+    display: block;
+    visibility: hidden;
+    clear:both;
+}
+.clearfix{
+    zoom:1;
 }
 a{text-decoration: none}
 .col-row {
@@ -27,8 +43,8 @@ a{text-decoration: none}
 .displayB{
     display: block!important;
 }
-.w70{
-    width: 70%;
+.w75{
+    width: 75%!important;
     display: inline-block;
 }
 .w50{
@@ -62,7 +78,7 @@ a{text-decoration: none}
 .sidebar{
     display: block;
     position: absolute;
-    width: 250px;
+    width: 200px;
     left: 0;
     top: 70px;
     bottom:0;
@@ -75,7 +91,7 @@ a{text-decoration: none}
 .content{
     background: none repeat scroll 0 0 #fff;
     position: absolute;
-    left: 250px;
+    left: 200px;
     right: 0;
     top: 70px;
     bottom:0;
@@ -182,4 +198,99 @@ a{text-decoration: none}
 }
 .editor-btn{
     margin-top: 20px;
+}
+
+/*业务管理-缴费记录*/ /*created by 12.05*/
+.Pay-header .el-form-item label,.recharge-header .el-form-item label,{
+   width:98px;
+   text-align: left;
+}
+.Pay-pagin,.recharge-pagin,.wechat-pagin,.account-pagin,.activity-pagin,.feedback-pagin,.runone-pagin,.electrical-pagin,.help-pagin,.headline-pagin,.person-pagin{
+    margin-top: 20px;
+    float: right;
+}
+.Pay-content .el-input.is-disabled .el-input__inner,.recharge-content .el-input.is-disabled .el-input__inner,.wechat-content .el-input.is-disabled .el-input__inner,.account-content .el-input.is-disabled .el-input__inner,.feedback-content .el-input.is-disabled .el-input__inner,.runone-content .el-input.is-disabled .el-input__inner,.recharge-content .el-input.is-disabled .el-input__inner,.headline-content .el-input.is-disabled .el-input__inner,.person-content .el-input.is-disabled .el-input__inner,.person-content .el-checkbox__input.is-disabled+span.el-checkbox__label{
+    color: #1f2d3d;
+    background: #fff;
+}
+.person-content .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner::after {
+    border-color: #06c;
+}
+/*业务管理-意见建议,只跑一次*/ /*created by 12.08*/
+.feedback-content .imgUl,.runone-content .imgUl{
+    list-style: none;
+
+}
+.feedback-content .imgUl li,.runone-content .imgUl li{
+    list-style: none;
+    float: left;
+    margin-left: 20px; 
+    width: 145px;
+    height: 100px;
+    overflow: hidden;
+
+}
+.feedback-content .imgUl a,.runone-content .imgUl a{
+    display: inline-block;
+}
+.feedback-content .imgUl img,.runone-content .imgUl img{
+    width: 100%;
+}
+.feedback-content .hand-line,.runone-content .hand-line,.account-content .hand-line ,.wechat-content .hand-line{
+    line-height: 24px;
+    font-size: 18px;
+    color: #2d2f33;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+}
+.account-content .el-form,.wechat-content .el-form{
+    margin-top: 20px;
+}
+/*活动管理*/
+.activity-content .el-checkbox{
+    margin-right: 30px;
+}
+.activity-content .el-checkbox+.el-checkbox{
+    margin-left: 0;
+}
+.activity-content .el-checkbox+.el-checkbox:nth-child(5) {
+    margin-right: 0px!important;
+}
+.el-upload--text {
+    width: 120px;
+    height: 120px;
+}
+.avatar-input{
+    position: relative;
+    top: -130px;
+    left: 0px;
+    width: 120px;
+    height: 120px;
+    opacity: 0;
+}
+.imgSrc{
+    width:120px;
+    display: inline-block;
+}
+.imgSrc img{
+    width:100%;
+}
+/*人员管理*/
+.person-content .el-checkbox{
+    margin-right: 30px;
+}
+.person-content .el-checkbox+.el-checkbox{
+    margin-left: 0;
+}
+.person-content .el-checkbox+.el-checkbox:nth-child(5) {
+    margin-right: 0px!important;
+}
+/*使用帮组*/
+.help-content  .el-dialog{
+    width:90%;
+}
+/*微信账号*/
+.wechat-content .el-dialog__body,.account-content .el-dialog__body {
+    padding: 0 20px 30px 20px;
+
 }

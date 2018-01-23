@@ -1,11 +1,11 @@
 <template>
-  <div class="list" >
-  <p>hello</p>
-  </div>
+  <el-menu mode="vertical" theme="dark" unique-opened :default-active="$route.path" :collapse="isCollapse">
+      <sidebar-item :routes='permission_routers'></sidebar-item>
+  </el-menu>
 </template>
 
 <script>
-import axios from "axios"
+
 export default {
   data () {
     return {
@@ -13,34 +13,10 @@ export default {
     }
   },
     mounted(){ 
-        //this.fetchData();
-        this.loadMore(); 
+        More(); 
     },
     methods:{
-      fetchData:function(){
-        let url = 'https://bird.ioliu.cn/v1/?url=https://api.douban.com/v2/movie/in_theaters?count=10&start=0';
-          this.$http.get(url,{
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
-              }
-          }).then((response) => {
-            // success
-            console.log(response)
-          }, (error) => {
-            // error
-            console.log('error'+error)
-          });
-      },loadMore: function() {
-        axios.get(API_PROXY+'https://api.douban.com/v2/book/user/alex1504/collections')
-        .then(function(res) {
-          console.log('success'+res);
-          var res1 =JSON.stringify(res);
-          console.log(res1+'11112')
-        }.bind(this))
-        .catch(function (error) {
-          console.log(error);
-        });
-    }
+
     }
 }
 

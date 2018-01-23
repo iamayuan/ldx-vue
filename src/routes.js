@@ -33,8 +33,7 @@ let routes = [
     {
         path: '/main',
         component: main,
-        name: 'login',
-        hidden: true//定义这个路径，并隐藏
+        name: 'login'
     },
 
     {
@@ -51,22 +50,56 @@ let routes = [
     {
         path: '',
         component: Vhome,
-        name: '',
+        name: '活动管理',
+        iconCls: 'el-icon-message',
+        children: [
+            { path: '/activity', component: Activity, name: '活动管理',iconCls: 'el-icon-message', leaf: true,children:[] },
+            { path: '/help', component: Help, name: '使用帮助' ,iconCls: 'el-icon-message', leaf: true,children:[] }
+            ,
+            { path: '/headline', component: HeadLine, name: '使用头条' ,iconCls: 'el-icon-message', leaf: true,children:[] }
+        ]
+    },
+    {
+        path: '',
+        component: Vhome,
+        name: '数据导出',
         leaf: true,//只有一个节点
         iconCls: 'el-icon-message',
         children: [
-            { path: '/intro', component: Intro, name: '自述' }
+            { path: '/template', component: Template, name: '模板' }
+        ]
+    },
+    {
+        path: '',
+        component: Vhome,
+        name: '用户管理',
+        iconCls: 'el-icon-message',
+        children: [
+            { path: '/wechat', component: Wechat, name: '微信账户' ,iconCls: 'el-icon-message', leaf: true,children:[] },
+            { path: '/account', component: Account, name: '户号管理',iconCls: 'el-icon-message', leaf: true,children:[] }
         ]
     },
     {
         path: '/',
         component: Vhome,
+        name: '业务管理',
+        iconCls: 'el-icon-message',
+        children: [
+            { path: '/pay', component: Pay, name: '缴费记录' ,iconCls: 'el-icon-message', leaf: true,children:[] },
+            { path: '/recharge', component: Recharge, name: '充值记录',iconCls: 'el-icon-message', leaf: true,children:[] },
+            { path: '/feedback', component: FeedBack, name: '意见反馈',iconCls: 'el-icon-message', leaf: true,children:[] },
+
+            { path: '/runone', component: RunOne, name: '只跑一次',iconCls: 'el-icon-message', leaf: true,children:[] }
+        ]
+    },{
+        path: '/',
+        component: Vhome,
         name: '查询统计',
         iconCls: 'el-icon-message',
         children: [
-            { path: '/page', component: Page, name: '页面访问' ,iconCls: 'el-icon-message',},
-            { path: '/interface', component: Interface, name: '接口访问',iconCls: 'el-icon-message',},
-            { path: '/errorlog', component: Errorlog, name: '错误日志',iconCls: 'el-icon-message', }
+            { path: '/page', component: Page, name: '页面访问' ,iconCls: 'el-icon-message', leaf: true,children:[] },
+            { path: '/interface', component: Interface, name: '接口访问',iconCls: 'el-icon-message', leaf: true,children:[] },
+            { path: '/errorlog', component: Errorlog, name: '错误日志',iconCls: 'el-icon-message', leaf: true,children:[] }
         ]
     },
     {
@@ -76,20 +109,24 @@ let routes = [
         iconCls: 'el-icon-message',//图标样式class
         children: [
             {   path: '/', 
-                component: Vhome,
+                component:  Parameter,
                 name: '系统设置' ,
+                iconCls: 'el-icon-message',
                 children:[{
                     path: '/parameter', 
                     component: Parameter, 
                     name: '参数设置',
-                    hidden:true,//隐藏
+                    leaf: true
                 },{
                     path: '/activityset', 
                     component: Activityset, 
                     name: '活动设置',
+                    leaf: true
+                },{
                     path: '/push', 
                     component: Push, 
-                    name: '推送设置'
+                    name: '推送设置',
+                    leaf: true
                 }]
             },
             {
@@ -113,55 +150,8 @@ let routes = [
                 name: '菜单管理',
                 iconCls: 'el-icon-message',
                 children:[] 
-            }
-        ]
-    },
-    {
-        path: '/',
-        component:Vhome,
-        name: '用户管理',
-        iconCls: 'el-icon-message',
-        children: [
-            { path: '/wechat', component: Wechat, name: '微信账号',leaf: true,iconCls: 'el-icon-message' },
-            { path: '/account', component: Account, name: '户号管理' ,leaf: true,iconCls: 'el-icon-message'}
-
-        ]
-    },
-    {
-        path: '/',
-        component: Vhome,
-        name: '数据导出',
-        iconCls: 'el-icon-message',
-        children: [
-            { path: '/template', component: Template, name: '模板维护',leaf: true, },
-            { path: '/weekly', component: Weekly, name: '周报' ,leaf: true,},
-            { path: '/monthly', component: Monthly, name: '月报' ,leaf: true,}
-
-        ]
-    },
-    {
-        path: '/',
-        component: Vhome,
-        name: '业务管理',
-        iconCls: 'el-icon-message',
-        children: [
-            { path: '/pay', component: Pay, name: '缴费记录',leaf: true},
-            { path: '/recharge', component: Recharge, name: '充值记录' ,leaf: true},
-            { path: '/feedback', component: FeedBack, name: '意见反馈' ,leaf: true},
-            { path: '/runone', component: RunOne, name: '只跑一次' ,leaf: true}
-
-        ]
-    },
-    {
-        path: '/',
-        component: Vhome,
-        name: '运营管理',
-        iconCls: 'el-icon-message',
-        children: [
-            { path: '/help', component: Help, name: '使用帮助',leaf: true},
-            { path: '/activity', component: Activity, name: '活动管理' ,leaf: true},
-            { path: '/headline', component: HeadLine, name: '电力头条' ,leaf: true}
-
+            },{ path: '/recharge', component: Recharge, name: '充值记录' ,leaf: true,iconCls: 'el-icon-message',
+                children:[] },
         ]
     }
 ];

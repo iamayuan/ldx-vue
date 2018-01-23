@@ -2,22 +2,18 @@
   <section class="account">
     <div class="account-header">
         <el-form ref="form" :model="accountForm" >
-          <el-form-item label="户主" class="w25">
-            <el-input placeholder="输入户主"  class="displayiB w70" v-model="accountForm.accountName"></el-input>
+          <el-form-item label="户号" class="w50">
+              <el-input placeholder="输入户号"  class="w75" v-model="accountForm.consNo"></el-input>
           </el-form-item>
-          <el-form-item label="户号" class="w25">
-              <el-input placeholder="输入户号"  class="displayiB w70" v-model="accountForm.accountId"></el-input>
+          <el-form-item label="户主" class="w50">
+            <el-input placeholder="输入户主"  class="w75" v-model="accountForm.consName"></el-input>
           </el-form-item>
-          <el-form-item label="供电所" class="w25">
-              <el-input placeholder="输入供电所"  class="displayiB w70" v-model="accountForm.Power"></el-input>
-          </el-form-item>
-          <el-form-item label="市" class="w25">
-            <el-input placeholder="输入地区"  class="displayiB w70" v-model="accountForm.accountArea"></el-input>
+          <el-form-item label="供电单位" class="w50">
+              <el-input placeholder="输入供电单位"  class="w75" v-model="accountForm.orgName"></el-input>
           </el-form-item>
           <el-form-item>
             <div class="button-group floatR">
                 <el-button type="primary" @click="onQuery">查询</el-button>
-                <el-button @click="onExport">导出</el-button>
             </div>
           </el-form-item>
         </el-form>
@@ -25,24 +21,25 @@
     </div>
     <div class="account-content">
         <el-table 
-        :data="tableData" borderstyle="width: 100%":default-sort = "{prop: 'date', order: 'descending'}">
-            <el-table-column type="selection"  width="55">
+        :data="tableData" borderstyle="width: 100%">
+            <el-table-column type="selection"  width="40" align="center">
             </el-table-column>
-            <el-table-column  prop="date" label="日期" sortable width="180">
+            <el-table-column  prop="id" label="户号"  width="120" align="center">
             </el-table-column>
-            <el-table-column prop="name" label="姓名" sortable width="180">
+            <el-table-column prop="consName" label="户主"  width="80" align="center">
             </el-table-column>
-            <el-table-column  prop="address" label="地址"  sortable :formatter="formatter">
+            <el-table-column  prop="elecAddr" label="用电地址" width="300"  align="center">
+            </el-table-column>
+            <el-table-column  prop="orgName" label="供电单位" width="120" align="center">
+            </el-table-column>
+            <el-table-column  prop="flagPeakValley" label="是否峰谷电" width="140"  align="center">
             </el-table-column>
             <el-table-column label="操作">
-                  <template scope="scope">
+                  <template slot-scope="scope">
+                    <el-button size="small" @click="onSync(scope.row)">同步</el-button>
                     <el-button
                       size="small"
-                      @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                    <el-button
-                      size="small"
-                      type="danger"
-                      @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                      @click="handleEdit(scope.row)">查看</el-button>
                   </template>
             </el-table-column>
         </el-table>
@@ -51,100 +48,151 @@
                 <el-pagination
                   @size-change="handleSizeChange"
                   @current-change="handleCurrentChange"
-                  :current-page.sync="currentPage"
-                  :page-sizes="[10, 20, 30, 40]"
-                  :page-size="100"
-                  layout="sizes, prev, pager, next"
-                  :total="50">
+                  :current-page.sync="pageNum"
+                  :page-sizes="[20, 40, 60, 80,100]"
+                  :page-size="perPageNum"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="total">
                 </el-pagination>
             </el-col>
-    </el-row>
+        </el-row>
+
+
+        <!--详情界面-->
+        <el-dialog title="详情" :visible.sync="detailFormVisible">
+            <p class="hand-line">户号信息</p>
+            <el-form :model="detailForm" label-width="120px" >
+                <el-form-item label="户号" prop="id">
+                    <el-input v-model="detailForm.id" auto-complete="off" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="户主" prop="consName">
+                    <el-input v-model="detailForm.consName" auto-complete="off" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="用电地址" prop="elecAddr">
+                    <el-input v-model="detailForm.elecAddr" auto-complete="off" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="是否峰谷电用户" prop="flagPeakValley">
+                    <el-input v-model="detailForm.flagPeakValley" auto-complete="off" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="供电单位名称" prop="orgName">
+                    <el-input v-model="detailForm.orgName" auto-complete="off" disabled></el-input>
+                </el-form-item>
+            </el-form>
+            <p class="hand-line">绑定该户号的微信用户信息</p>
+            <el-table  :data="userList" borderstyle="width: 100%">
+                <el-table-column prop="nickname" label="微信昵称"  >
+                </el-table-column>
+                <el-table-column  prop="selectTime" label="绑定时间" >
+                </el-table-column>
+            </el-table>
+        </el-dialog>
     </div>
   </section>
 </template>
 
 <script>
-import axios from 'axios'
+import http from '@/utils/http'
+import api from '@/api/api'
 export default {
     data() {
       return {
         accountForm:{
-            accountName: '',
-            accountId: '',
-            Power:'',
-            accountArea:''
+            consNo: '',
+            consName: '',
+            orgName:''
         }, 
-        currentPage: 1,
-        tableData: [{
-                 date: '2016-05-02',
-                 name: '王小虎',
-                 address: '上海市普陀区金沙江路 1518 弄'
-               }, {
-                 date: '2016-05-04',
-                 name: '小王虎',
-                 address: '上海市普陀区金沙江路 1517 弄'
-               }, {
-                 date: '2016-05-01',
-                 name: '王虎小',
-                 address: '上海市普陀区金沙江路 1519 弄'
-               }, {
-                 date: '2016-05-03',
-                 name: '虎小王',
-                 address: '上海市普陀区金沙江路 1516 弄'
-               }]
+        pageNum: 1,//第几页
+        total:0,
+        tableData: [],
+        tableDataAll:[],
+        userList:[],
+        perPageNum:20,//每页显示数
+        detailFormVisible: false,//界面是否显示
+        detailForm: {
+            id:'',
+            consName:'',
+            elecAddr:'',
+            flagPeakValley:'',
+            orgName:''
+        }
+        
       };
     },
     methods: {
-      formatter(row, column) {
-        return row.address;
+      getAccountList:function (pageNum,perPageNum) {
+        let params = { 
+          consNo:this.accountForm.consNo,
+          consName:this.accountForm.consName,
+          orgName:this.accountForm.orgName,
+          pageNum:pageNum,
+          perPageNum:perPageNum//每页显示的个数
+        };
+        const res = http.get(api.getAccount, params).then(res => {
+             console.log('户号列表',res);
+             if(res.errcode=='0'){
+                let tableData=res.ret.list;
+                for(var item in tableData){
+                 tableData[item].flagPeakValley=='0'?tableData[item].flagPeakValley='否':tableData[item].flagPeakValley='是';
+               }
+               this.tableData=tableData;
+               this.total=res.ret.totalElements;
+             }
+             
+          
+        })
+        
+      },
+      getAccountDetail:function(consNo){
+        const res = http.get(api.getAccount+'/'+consNo, '').then(res => {
+            console.log('详情',res);
+            if(res.errcode=='0'){
+               let userInfo;
+               userInfo=res.ret.accountInfo;
+               this.detailForm.consName= userInfo.consName,
+               this.detailForm.id= userInfo.id,
+               this.detailForm.elecAddr= userInfo.elecAddr,
+               this.detailForm.orgName= userInfo.orgName,
+               this.detailForm.flagPeakValley = (userInfo.flagPeakValley=='0')?'否':'是',
+               this.userList = res.ret.userList;
+            }
+        })
       },
       handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
+        let pageNum = this.pageNum;
+        this.perPageNum=val;
+        this.getAccountList(pageNum,val);
+
       },
       handleCurrentChange(val) {
+        let perPageNum=this.perPageNum;
+        this.pageNum=val;
+        this.getAccountList(val,perPageNum);
         console.log(`当前页: ${val}`);
       },
-      handleEdit(index, row) {
-        console.log(index, row);
+      handleEdit(val) {
+        this.detailFormVisible=true;
+        this.getAccountDetail(val.id);
       },
-      handleDelete(index, row) {
-        console.log(index, row);
+      onSync(val){
+        console.log('同步');
       },
       onQuery(){
-        console.log(`查询`);
-      },
-      onExport(){
-        console.log(`导出`);
+        let pageNum = this.pageNum;
+        let perPageNum=this.perPageNum;
+        this.getAccountList(pageNum,perPageNum);
       }
 
     },
     mounted() {
-        //this.getWechatPage();
-        console.log('1');
-        console.log(axios)
-       
+      let pageNum = this.pageNum;
+      let perPageNum=this.perPageNum;
+      this.getAccountList(pageNum,perPageNum);
     }
   };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
 </style>
 

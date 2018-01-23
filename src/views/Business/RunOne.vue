@@ -3,21 +3,22 @@
     <div class="runone-header">
         <el-form ref="form" :model="runoneForm" >
           <el-form-item label="反馈时间" class="w50">
-              <el-date-picker v-model="runoneForm.runoneTime"  type="daterange" placeholder="选择日期范围"></el-date-picker>
+               <el-date-picker v-model="runoneForm.feedbackTime" type="daterange" range-separator="至" start-placeholder="反馈开始时间" end-placeholder="反馈结束时间" class="w75">
+              </el-date-picker>
           </el-form-item>
           <el-form-item label="处理人" class="w50">
-            <el-input placeholder="输入处理人"  class="displayiB w70" v-model="runoneForm.handler"></el-input>
+             <el-input placeholder="输入处理人"  class="w75" v-model="runoneForm.dealMan"></el-input>
           </el-form-item>
-          <el-form-item label="处理状态">
-            <el-select placeholder="未处理" class="wechat-select" v-model="runoneForm.status">
+          <el-form-item label="处理状态" class="w50">
+            <el-select placeholder="请选择处理状态" class="feedback-select w75" v-model="runoneForm.handleState" clearable >
                 <el-option label="未处理" value="0" class="displayB"></el-option>
-                <el-option label="已处理" value="1" class="displayB"></el-option>
+                <el-option label="处理中" value="1" class="displayB"></el-option>
+                <el-option label="已关闭" value="2" class="displayB"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item>
             <div class="button-group floatR">
                 <el-button type="primary" @click="onQuery">查询</el-button>
-                <el-button @click="onExport">导出</el-button>
             </div>
           </el-form-item>
         </el-form>
@@ -25,24 +26,31 @@
     </div>
     <div class="runone-content">
         <el-table 
-        :data="tableData" borderstyle="width: 100%":default-sort = "{prop: 'date', order: 'descending'}">
-            <el-table-column type="selection"  width="55">
+        :data="tableData" >
+            <el-table-column  prop="suggestion" label="意见反馈内容"  width="180" align="center">
             </el-table-column>
-            <el-table-column  prop="date" label="日期" sortable width="180">
+            <el-table-column prop="contactName" label="联系人" width="80" align="center">
             </el-table-column>
-            <el-table-column prop="name" label="姓名" sortable width="180">
+            <el-table-column prop="handler" label="处理人" width="120" align="center">
             </el-table-column>
-            <el-table-column  prop="address" label="地址"  sortable :formatter="formatter">
+            <el-table-column prop="way" label="处理方式" width="120" align="center">
+            </el-table-column>
+            <el-table-column prop="submitTime" label="反馈时间" width="140" align="center">
+            </el-table-column>
+            <el-table-column  prop="handleState" label="状态" width="80"  align="center">
             </el-table-column>
             <el-table-column label="操作">
-                  <template scope="scope">
+                  <template  slot-scope="scope">
                     <el-button
                       size="small"
-                      @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                      @click="handleEdit(scope.row)">处理</el-button>
                     <el-button
                       size="small"
                       type="danger"
-                      @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                      @click="handleClose(scope.row)">关闭</el-button>
+                      <el-button
+                      size="small"
+                      @click="handleDetail(scope.row)">详情</el-button>
                   </template>
             </el-table-column>
         </el-table>
@@ -51,107 +59,265 @@
                 <el-pagination
                   @size-change="handleSizeChange"
                   @current-change="handleCurrentChange"
-                  :current-page.sync="currentPage"
-                  :page-sizes="[10, 20, 30, 40]"
-                  :page-size="100"
-                  layout="sizes, prev, pager, next"
-                  :total="50">
+                  :current-page.sync="pageNum"
+                  :page-sizes="[20, 40, 60, 80 ,100]"
+                  :page-size="perPageNum"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="total">
                 </el-pagination>
             </el-col>
-    </el-row>
+        </el-row>
+        <!--处理界面-->
+        <el-dialog title="处理界面" :visible.sync="handFormVisible">
+            <el-form :model="handForm" label-width="120px" :rules="rules" ref="handForm" >
+              <el-form-item  prop="way" label="处理方式" >
+                <el-select v-model="handForm.way" placeholder="请选择处理方式">
+                  <el-option label="电话处理" value="电话处理"></el-option>
+                  <el-option label="上门服务" value="上门服务"></el-option>
+                  <el-option label="其他" value="其他"></el-option>
+                </el-select>
+              </el-form-item>
+
+              <el-form-item prop="result" label="处理内容" >
+                <el-input type="textarea" v-model="handForm.result"></el-input>
+              </el-form-item>
+              <el-form-item>
+                  <el-button type="primary" @click="submitForm('handForm')">立即处理</el-button>
+                  <el-button @click="resetForm('handForm')">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+        <!--详情界面-->
+        <el-dialog title="详情" :visible.sync="detailFormVisible">
+            
+            <el-form :model="detailForm" label-width="120px" >
+                <el-form-item label="手机" prop="moblie">
+                    <el-input v-model="detailForm.moblie" auto-complete="off" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="openid" prop="openid">
+                    <el-input v-model="detailForm.openid" auto-complete="off" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="昵称" prop="nickname">
+                    <el-input v-model="detailForm.nickname" auto-complete="off" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="反馈内容" prop="suggest">
+                    <el-input v-model="detailForm.suggest" auto-complete="off" disabled></el-input>
+                </el-form-item>
+                  <el-form-item label="附件">
+                      <ul class="imgUl clearfix">
+                        <li   v-for="item in imglist" >
+                          <a :href="item.img" target="_blank">
+                            <img v-bind:src="item.img">
+                          </a>
+                        </li> 
+
+                      </ul>
+                  </el-form-item>
+            </el-form>
+
+            <p class="hand-line">处理日志</p>
+            <el-table  :data="feedbackHandleList" borderstyle="width: 100%">
+                <el-table-column prop="result" label="处理结果"  >
+                </el-table-column>
+                <el-table-column  prop="dateLine" label="操作日期" >
+                </el-table-column>
+                <el-table-column  prop="handler" label="处理人" >
+                </el-table-column>
+                <el-table-column prop="way" label="处理方式">
+               </el-table-column>
+            </el-table>
+        </el-dialog>
     </div>
   </section>
 </template>
 
 <script>
-import axios from 'axios'
+import utils from '@/utils/utils'
+import http from '@/utils/http'
+import api from '@/api/api'
 export default {
     data() {
       return {
         runoneForm:{
-            runoneTime: '',
-            handler:'',
-            status:''
+            feedbackTime: '',
+            feedbackStart:'',
+            feedbackEnd:'',
+            dealMan:'',
+            handleState:''
         }, 
-        currentPage: 1,
-        tableData: [{
-                 date: '2016-05-02',
-                 name: '王小虎',
-                 address: '上海市普陀区金沙江路 1518 弄'
-               }, {
-                 date: '2016-05-04',
-                 name: '小王虎',
-                 address: '上海市普陀区金沙江路 1517 弄'
-               }, {
-                 date: '2016-05-01',
-                 name: '王虎小',
-                 address: '上海市普陀区金沙江路 1519 弄'
-               }, {
-                 date: '2016-05-03',
-                 name: '虎小王',
-                 address: '上海市普陀区金沙江路 1516 弄'
-               }]
+        handFormVisible: false,//界面是否显示
+        handForm: {
+            way:'',   
+            result:'',
+            suggestId:''
+        },
+        detailFormVisible: false,//界面是否显示
+        detailForm: {
+            moblie:'',
+            suggest:'',
+            id:'',
+            nickname:'',
+            openid:''
+        },
+        pageNum: 1,//第几页
+        total:0,
+        perPageNum:20,//每页显示数
+        feedbackHandleList:[],
+        tableData: [],//表格数据
+        imglist:[],
+        rules: {
+          result: [
+            { required: true, message: '处理结果不能为空', trigger: 'blur' }
+          ],
+          way: [
+            { required: true, message: '处理方式不能为空', trigger: 'change'}
+          ]
+        }
       };
     },
     methods: {
-      formatter(row, column) {
-        return row.address;
+      getRunList:function (pageNum,perPageNum) {
+        let feedbackTime =this.runoneForm.feedbackTime;
+        let params = { 
+          dealMan:this.runoneForm.dealMan,
+          handleState:this.runoneForm.handleState,
+          pageNum:pageNum,
+          perPageNum:perPageNum//每页显示的个数
+
+        };
+        if(feedbackTime!=null&&feedbackTime!=""){
+          params.feedbackStart=utils.formatDateTim(feedbackTime[0]);
+          params.feedbackEnd=utils.formatDateTim(feedbackTime[1])
+        }else{
+          params.feedbackStart='';
+          params.feedbackEnd=''
+        }
+        const res = http.get(api.Runone, params).then(res => {
+             console.log('列表',res);
+             if(res.errcode=='0'){
+               this.tableData=res.ret.list;
+               this.total=res.ret.totalElements;
+               for(var item in this.tableData){
+                  //this.tableData[item].submitTime=(this.tableData[item].submitTime).slice(0,10);
+                  if(this.tableData[item].handleState=='0'){
+                    this.tableData[item].handleState='未处理';
+                  }else if(this.tableData[item].handleState=='1'){
+                    this.tableData[item].handleState='处理中';
+                  }else if(this.tableData[item].handleState=='2'){
+                    this.tableData[item].handleState='已关闭';
+                  }
+                }
+            }
+ 
+        })
+      },
+      getDetail:function(suggestId){
+        const res = http.get(api.Runone+'/'+suggestId,'').then(res => {
+             console.log('详情',res);
+             if(res.errcode=='0'){
+                 let userInfo = res.ret.suggestDetailDto;
+                 this.detailForm.moblie= userInfo.moblie;
+                 this.detailForm.suggest= userInfo.suggest;
+                 this.detailForm.nickname= userInfo.nickname;
+                 this.detailForm.openid = userInfo.userId;
+                 this.feedbackHandleList = res.ret.suggestHandleList;
+                 this.imglist = res.ret.imgList;
+               }
+        })
+      },
+      getClose:function(suggestId){
+        const res = http.patch(api.Runone+'/'+suggestId,'').then(res => {
+            console.log('关闭',res);
+            let errcode =res.errcode;
+            if(errcode=='0'){
+             this.$message({
+                   message: '关闭成功',
+                   type: 'success'
+               });
+              let pageNum = this.pageNum;
+              let perPageNum=this.perPageNum;
+              this.getRunList(pageNum,perPageNum);
+            }else{
+               this.$message({
+                   message: errcode,
+                   type: 'error'
+               });
+            }  
+            
+             
+        })
+      },
+      getHandle:function(suggestId){
+        let params = Object.assign({}, this.handForm);
+        console.log('params',params);
+        const res = http.put(api.Runone, params).then(res => {
+             console.log('处理',res);
+
+             this.handFormVisible=false;
+             let errcode =res.errcode;
+             if(errcode=='0'){
+                this.$message({
+                    message: '处理成功',
+                    type: 'success'
+                });
+               let pageNum = this.pageNum;
+               let perPageNum=this.perPageNum;
+               this.getRunList(pageNum,perPageNum);
+             }else{
+                this.$message({
+                    message: errcode,
+                    type: 'error'
+                });
+             } 
+
+        })
       },
       handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
+        let pageNum = this.pageNum;
+        this.perPageNum=val;
+        this.getRunList(pageNum,val);
       },
       handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
+        let perPageNum=this.perPageNum;
+        this.pageNum=val;
+        this.getRunList(val,perPageNum);
       },
-      handleEdit(index, row) {
-        console.log(index, row);
+      handleDetail(val){
+        console.log(val);
+        this.detailFormVisible=true;
+        this.getDetail(val.suggestId);
       },
-      handleDelete(index, row) {
-        console.log(index, row);
+      handleEdit(val){
+        this.handFormVisible=true;
+        this.handForm.suggestId=val.suggestId;
+      },
+      handleClose(val) {
+        this.getClose(val.suggestId);
+      },
+      submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.getHandle(this.handForm.suggestId);
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
       },
       onQuery(){
-        console.log(`查询`);
-      },
-      onExport(){
-        console.log(`导出`);
-      },
-      getWechatPage() {
-        /*let para = {
-            pageNum:1,
-            perPageNum:10
-        };
-        this.listLoading = true;
-        getWechatList(para).then((res) => {
-            console.log(res)
-        });*/
-    /*    let url = 'https://bird.ioliu.cn/v1/?url=https://api.douban.com/v2/movie/in_theaters?count=10&start=0';
-          this.$http.get(url).then((response) => {
-            // success
-            console.log(response.data.subjects)
-            this.loading = false;
-            console.log(response.data.subjects[0])
-            response.data.subjects.forEach(todo=>{
-              this.todos.push(todo);
-            })
-          }, (error) => {
-            // error
-            console.log('error')
-          });*/
-      axios.get('http://192.168.253.16:8080/userManage/getUserList?pageNum=1&perPageNum=2&openId=1')
-        .then(function (response) {
-          console.log(response);
-        })
-        .catch(function (response) {
-          console.log('error'+response);
-        });
-
+        let pageNum = this.pageNum;
+        let perPageNum=this.perPageNum;
+        this.getRunList(pageNum,perPageNum);
       }
 
     },
     mounted() {
-        this.getWechatPage();
-        console.log('1');
-        console.log(axios)
+        let pageNum = this.pageNum;
+        let perPageNum=this.perPageNum;
+        this.getRunList(pageNum,perPageNum);
        
     }
   };

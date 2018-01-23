@@ -186,6 +186,7 @@ export default {
     },
     methods: {
       getEleList:function (pageNum,perPageNum) {
+
         let params = { 
           name:this.electricalForm.name,
           mobile:this.electricalForm.mobile,
@@ -195,7 +196,7 @@ export default {
           perPageNum:perPageNum//每页显示的个数
         };
         const res = http.get(api.getPromoters, params).then(res => {
-             console.log('详情',res);
+             console.log(api.getPromoters,'api2');
              if(res.errcode=='0'){
                this.tableData=res.ret.list;
                for(var item in this.tableData){

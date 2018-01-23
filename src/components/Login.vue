@@ -38,6 +38,7 @@ var routers = []
   export default {
     data() {
       return {
+        menuList:[],
         logining: false,
         ruleForm: {
            account: 'admin',
@@ -65,40 +66,83 @@ var routers = []
         var _this = this;
         this.$refs.ruleForm.validate((valid) => {
           if (valid) {
-            console.log('account',this.ruleForm.account);
             this.logining = true;
             NProgress.start();
-            
+            //根据登录的账号获取菜单
             var loginParams = { username: this.ruleForm.account, password: this.ruleForm.checkPass };
-            api.post1('/api/login',loginParams)
-              .then(function (res) {
-                console.log('res1',res);
-                /*if(res.data.errcode=='0'){
-                  sessionStorage.setItem('user', JSON.stringify(user));
-                  this.$http.get('/api/open/menu/groups').then(res => {
-                      console.log(res);
-                      this.login(data);
-                      this.$router.addRoutes(routers)
-                      this.$router.push({ path: '/main' });
-                     // this.pickData(res.data);
-                  }).catch(err => {
-                    console.log(err)
-                  })
-                  this.$router.push({ path: '/' });
 
-                }else{
-                  console.log(res.data.errmsg);
-                };*/
-              })
-              .catch(function (error) {
-               console.log(error);
-            });
+            const res = http.post1('/login', loginParams).then(res => {
+                console.log('登录成功',res)
+                 
+                 if(res.errcode=='0'){
+                   this.logining = false;
+                   this.$http.get('/api/open/menu/groups').then(res => {
+                       this.logining = false;
+                       NProgress.done();
+                       console.log(res);
+                       this.pickData(res.data);
+                   }).catch(err => {
+                     console.log(err,)
+                   })
+
+                 }else{
+                   console.log(res.data.errmsg,);
+                 };
+
+            })
+
             
           } else {
             console.log('error submit!!');
             return false;
           }
         });
+      },
+      pickData(data){
+        for(let item in data){
+            if(data[item].groupCode=="-99") {
+              data.splice(item, 1);
+            }
+            data[item].path='/menu'+item;
+            data[item].component='Home';
+            data[item].name=data[item].groupName;
+            data[item].iconCls='el-icon-message';
+            if(data[item].children.length>0){
+                data[item].leaf=false
+                let dataMenu =data[item].children;
+                for(let item1 in dataMenu){
+                    dataMenu[item1].path=dataMenu[item1].uri;
+                    dataMenu[item1].component='Main';
+                    if(dataMenu[item1].children.length>0){
+                        dataMenu[item1].leaf=false;
+                        let dataMenuc =dataMenu[item1].children;
+                        for(let item2 in dataMenuc){
+                          dataMenuc[item2].path=dataMenuc[item2].uri;
+                          dataMenuc[item2].component='Main';
+                          if(dataMenuc[item2].children.length>0){
+                              dataMenuc[item2].leaf=false;
+                          }else{
+                              dataMenuc[item2].leaf=true;
+                          }
+                        }
+                        
+                    }else{
+                        dataMenu[item1].leaf=true;
+                    }
+                    
+                }
+            }else{
+                data[item].leaf=true;
+            }
+            
+
+        }
+        console.log('最后2',data);
+        this.login(data);
+
+        this.$router.addRoutes(routers)
+        this.$router.push({ path: '/main' });
+        
       }
     }
   }

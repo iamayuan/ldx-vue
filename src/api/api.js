@@ -1,57 +1,74 @@
-/*import axios from 'axios';
+export default {
+  //系统管理模块
+  
 
-let host = '';
+  getDymMenu:`/open/menu/groups`,
 
-export const requestLogin = params => { return axios.post(`${host}/login`, params).then(res => res.data); };
+  getMenuList:`/sys/menu/groups`,  //获取全部菜单组
+  modifyMenu :`/sys/menu/group/update`,//更新菜单组
+  createMenu :`/sys/menu/group/create`,//新增菜单组
+  deleteMenu :`/sys/menu/group/delete`,//删除菜单组
+  getmenupool :`/sys/menupool/all`,//获取菜单池
+  createMenuPool:`/sys/menupool/create`,//新增菜单池中的菜单
+  modifyMenuPool:`/sys/menupool/update`,//更新菜单池中的菜单
+  deleteMenuPool:`/sys/menupool/delete`,//删除菜单池中的菜单
+  getPromoters:`/sys/promoters`,//电小二
 
-export const getMenuList = params => { return axios.get(`${host}/sys/menu/groups`, { params: params }); };
-
-export const editMenu = params => { return axios.post(`${host}/sys/menu/group/update`, { params: params }); };
-
-export const createMenu = params => { return axios.post(`${host}/sys/menu/group/create`, { params: params }); };
-
-export const deleteMenu = params => { return axios.post(`${host}/sys/menu/group/delete`, { params: params }); };*/
-import axios from 'axios';
-
-
-let base = '';
-//登录
-export const requestLogin = params => { return axios.post(`${base}/login`, params).then(res => res.data); };
-
-export const getUserList = params => { return axios.get(`${base}/user/list`, { params: params }); };
-//获取菜单组列表
-export const getMenuList = params => { return axios.get(`${base}/sys/menu/groups`, { params: params }); };
-//编辑菜单组列表
-export const editMenuList = params => { return axios.post(`${base}/sys/menu/group/update`, { params: params }); };
-//新建菜单组列表
-export const createMenuList = params => { return axios.post(`${base}/sys/menu/group/create`, { params: params }); };
-//删除菜单组列表
-export const deleteMenuList = params => { return axios.post(`${base}/sys/menu/group/delete`, { params: params }); }
-//创建菜单
-export const createMenu = params => { return axios.post(`${base}/sys/menu/create`, { params: params }); };
-//删除菜单
-export const deleteMenu = params => { return axios.post(`${base}/sys/menu/delete`, { params: params }); };
-//更新菜单
-export const updateMenu = params => { return axios.post(`${base}/sys/menu/update`, { params: params }); };
-//获取菜单池
-export const allMenuPool = params => { return axios.post(`${base}/sys/menupool/all`, { params: params }); };
-//新增菜单池中的菜单
-export const createMenuPool = params => { return axios.post(`${base}/sys/menupool/create`, { params: params }); };
-//更新菜单池中的菜单
-export const updateMenuPool = params => { return axios.post(`${base}/sys/menupool/update`, { params: params }); };
-//删除菜单池中的菜单
-export const deleteMenuPool = params => { return axios.post(`${base}/sys/menupool/delete`, { params: params }); };
-export const removeUser = params => { return axios.get(`${base}/user/remove`, { params: params }); };
+  //数据导出模块
+  initTemplate:`/data/excel/options` , //获取导出模板的数据
+  exportTemplate:`data/excel/export`,  //导出excel
+ 
 
 
+  //用户管理模块-
+  getWechat:`/customer/users`,//微信账号
+  getAccount:`/customer/accounts`,//户号管理
+  
+  //业务管理
+  Pays:`/bs/pays`,//查询缴费记录列表接口
+  Recharge:`/bs/recharges`,//查询充值记录
+  Feedbacks:`/bs/feedBacks`,//意见反馈
+  Runone:`/bs/suggest`,//只跑一次
 
-export const editUser = params => { return axios.get(`${base}/user/edit`, { params: params }); };
+  //查询统计模块
+  getFunctionList:`/stat/view/names`,//获取功能列表接口
+  getFunctionCount:`/stat/view/content`,//根据时间\页面查询数据接口
+  getInterfaceList:`/stat/api/names`,//获取接口列表接口
+  getInterfaceCount:`/stat/api/content`,//根据时间\页面查询数据接口
+  getExceptionCount:`/stat/apiexception/content`,//根据时间\页面查询数据接
+  //运营管理模块
+  Activities:`/operations/activities`, //活动管理
+  Regions:`/operations/activity/regions`,  //获取活动区域
+  Category:`/operations/guide/category`,//查询使用指南分类
+  guideQuery:`/operations/guide`,//使用帮助
+  getHeadlines:`/operations/article`,//电力头条
+  getHeadlinesType:`/operations/article/type`,
+  getHeadlinesTag:`/operations/article/tag`,
+  Networks:`/operations/salesNetworks`,//营业网点列表
 
-export const addUser = params => { return axios.get(`${base}/user/add`, { params: params }); };
+ 
 
-/*-----微信用户-----*/
 
-//查询微信用户列表接口
-export const  getWechatList = params => { return axios.get(`${base}/userManage/getUserList`, { params: params }); };
 
-export const  getDou = params => { return axios.get('https://cnodejs.org/api/v1/topic/5433d5e4e737cbe96dcef312', { params: params }); };
+
+
+
+
+
+
+
+  requestLogin:`/login`, //登录接口
+
+
+  GetPerson:`/employee/list`,
+  PersonDetail:`/employee/byId`,
+  PersonAdd:`/employee/add`,
+  PersonEdit:`/employee/edit`,
+  PersonDel:`/employee/del`
+}
+
+
+
+
+
+

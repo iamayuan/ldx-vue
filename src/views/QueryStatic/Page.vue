@@ -2,68 +2,39 @@
   <section class="page">
     <div class="page-header">
         <el-form ref="form" :model="pageForm" >
-          <el-form-item label="统计页面" class="w50">
-            <el-select placeholder="缴费充值" class="page-select" v-model="pageForm.pages">
-                <el-option label="缴费充值" value="0" class="displayB"></el-option>
-                <el-option label="未关注" value="1" class="displayB"></el-option>
-            </el-select>
+            <el-form-item  label="统计页面" class="w50" >
+              <el-select v-model="pageForm.select" placeholder="请选择" class="w75">
+                <el-option :value="item.names" :label="item.names"  :key="item.key" v-for="item in functionList"  class="displayB"> </el-option> 
+              </el-select>
+            </el-form-item> 
           </el-form-item>
           <el-form-item label="统计时间" class="w50">
-              <el-date-picker v-model="pageForm.Time"  type="date" placeholder="选择日期"></el-date-picker>
-              <el-button type="primary" @click="onQuery">查询</el-button>
+              <el-date-picker v-model="pageForm.Time" type="daterange" range-separator="至" start-placeholder="统计开始时间" end-placeholder="统计结束日期" class="w75">
+              </el-date-picker>
+              
+          </el-form-item>
+          <el-form-item>
+            <div class="button-group floatR">
+                <el-button type="primary" @click="onQuery">查询</el-button>
+            </div>
           </el-form-item>
         </el-form>
         
     </div>
     <div class="page-content">
         <el-col :span="12">
-          <div id="chartLine" style="width:100%; height:400px;"></div>
-        </el-col>
-        <el-col :span="12">
           <div id="chartPie" style="width:100%; height:400px;"></div>
         </el-col>
+        <el-col :span="12">
+          <div id="chartLine" style="width:100%; height:400px;"></div>
+        </el-col>
+        
         <el-col :span="8">
           <div id="chartPie1" style="width:100%; height:400px;"></div>
           <div id="chartPie2" style="width:100%; height:400px;"></div>
           <div id="chartPie3" style="width:100%; height:400px;"></div>
         </el-col>
-        <el-col :span="16">
-        <el-table 
-        :data="tableData" borderstyle="width: 100%":default-sort = "{prop: 'date', order: 'descending'}">
-            <el-table-column type="selection"  width="55">
-            </el-table-column>
-            <el-table-column  prop="date" label="日期" sortable width="180">
-            </el-table-column>
-            <el-table-column prop="name" label="姓名" sortable width="180">
-            </el-table-column>
-            <el-table-column  prop="address" label="地址"  sortable :formatter="formatter">
-            </el-table-column>
-            <el-table-column label="操作">
-                  <template scope="scope">
-                    <el-button
-                      size="small"
-                      @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                    <el-button
-                      size="small"
-                      type="danger"
-                      @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                  </template>
-            </el-table-column>
-        </el-table>
-            <el-row class="page-pagin">
-                <el-col :span="24">
-                    <el-pagination
-                      @size-change="handleSizeChange"
-                      @current-change="handleCurrentChange"
-                      :current-page.sync="currentPage"
-                      :page-sizes="[10, 20, 30, 40]"
-                      :page-size="100"
-                      layout="sizes, prev, pager, next"
-                      :total="50">
-                    </el-pagination>
-                </el-col>
-        </el-row>
-        </el-col>
+
         
     </div>
   </section>
@@ -72,53 +43,174 @@
 
 <script>
 import echarts from 'echarts'
+import utils from '@/utils/utils'
+import http from '@/utils/http'
+import api from '@/api/api'
 export default {
     data() {
       return {
+        dateData:[],
+        functionList:[],
+        chartPieData:[],
         pageForm:{
             pages: '',
-            Time: ''
+            Time: '',
+            select:''
         }, 
-        currentPage: 1,
         chartLine: null,
         chartPie: null,
         chartPie1: null,
         chartPie2: null,
-        chartPie3: null,
-        tableData: [{
-                 date: '2016-05-02',
-                 name: '王小虎',
-                 address: '上海市普陀区金沙江路 1518 弄'
-               }, {
-                 date: '2016-05-04',
-                 name: '王小虎',
-                 address: '上海市普陀区金沙江路 1517 弄'
-               }, {
-                 date: '2016-05-01',
-                 name: '王小虎',
-                 address: '上海市普陀区金沙江路 1519 弄'
-               }, {
-                 date: '2016-05-03',
-                 name: '王小虎',
-                 address: '上海市普陀区金沙江路 1516 弄'
-               }]
+        chartPie3: null
       };
     },
     methods: {
-      formatter(row, column) {
-        return row.address;
+      getFunctionList:function () {
+        let params = '';
+        const res = http.get(api.getFunctionList, params).then(res => {
+          console.log('functionnList',res)
+             let list =res.ret.list;
+             let functionList= [];
+             for(var item in list){
+                var obj = {};
+                obj.names = list[item];
+                obj.keyindex ='';
+                functionList[item] = obj
+
+             }
+             this.functionList=functionList;
+             this.pageForm.select=this.functionList[0];
+             this.getFunctionCount(functionList[0].names,this.pageForm.Time);
+             
+
+        })
       },
-      drawLineChart() {
+      getFunctionCount:function (functionName,time) {
+        let Time =time;let params={};
+        params.functionName=functionName
+        if(Time!=null&&Time!=""){
+          params.startTime='2017-11-25';//utils.formatDateTim(Time[0]);
+          params.endTime='2017-12-01'//utils.formatDateTim(Time[1])
+        }else{
+          params.startTime='';
+          params.endTime=''
+        }
+        console.log('params',params);
+
+
+       const res = http.get(api.getFunctionCount, params).then(res => {
+            console.log('列表',res);
+            var num1=0,num2=0,num3=0;
+            let chartPieData1=[],chartPieData2=[],chartPieData3=[],chartPieData=[],chartLineData=[],dateData=[],chartPieDatas=[],data1=[],data2=[],data3=[];
+            var date =res.ret.date;
+            var dataList =res.ret.data;
+            for(var item in date){
+              dateData.push(date[item]);
+
+            }
+
+            for(var item in dataList){
+              let num =0;let num1=0;
+              let obj={},objl={};
+              for(let item1 in dataList[item].data){
+                  num+=parseInt(dataList[item].data[item1]);
+              }
+              obj.name=dataList[item].name,
+              obj.value =num;
+              objl.name=dataList[item].name,
+              objl.data =dataList[item].data;
+              objl.type="line";
+              chartLineData.push(objl)
+              chartPieData.push(obj);
+              data1= dataList[0].children;
+              data2= dataList[1].children;
+              data3= dataList[2].children;
+              
+              
+            }
+            console.log(chartLineData);
+            for(var pie1 in data1){
+                let num1=0;
+                let obj1={};
+                for(let item1 in data1[pie1].num){
+                    num1+=parseInt(data1[pie1].num[item1]);
+                }
+                obj1.name=data1[pie1].name,
+                obj1.value =num1;
+                chartPieData1.push(obj1);
+            }
+            for(var pie2 in data2){
+                let num2=0;
+                let obj2={};
+                for(let item2 in data2[pie2].num){
+                    num2+=parseInt(data2[pie2].num[item2]);
+                }
+                obj2.name=data2[pie2].name,
+                obj2.value =num2;
+                chartPieData2.push(obj2);
+            }
+            for(var pie3 in data3){
+                let num3=0;
+                let obj3={};
+                for(let item3 in data3[pie3].num){
+                    num3+=parseInt(data3[pie3].num[item3]);
+                }
+                obj3.name=data3[pie3].name,
+                obj3.value =num3;
+                chartPieData3.push(obj3);
+            }
+            //console.log(chartPieData1)
+            this.dateData= dateData;
+            
+            this.drawPieChart(chartPieData);
+            this.drawPieChart1(chartPieData1);
+            this.drawPieChart2(chartPieData2);
+            this.drawPieChart3(chartPieData3);
+            this.drawLineChart(chartLineData);
+
+
+        })
+      },
+      drawPieChart(data) {
+          this.chartPie = echarts.init(document.getElementById('chartPie'));
+          this.chartPie.setOption({
+              title: {
+                  text: '',
+                  subtext: '',
+                  x: 'center'
+              },
+              tooltip: {
+                  trigger: 'item'
+              },
+              series: [
+                  {
+                      name: '页面访问',
+                      type: 'pie',
+                      radius: '55%',
+                      center: ['50%', '60%'],
+                      data:data,
+                      itemStyle: {
+                          emphasis: {
+                              shadowBlur: 10,
+                              shadowOffsetX: 0,
+                              shadowColor: 'rgba(0, 0, 0, 0.5)'
+                          }
+                      }
+                  }
+              ]
+          });
+      },
+      drawLineChart(data) {
           this.chartLine = echarts.init(document.getElementById('chartLine'));
           this.chartLine.setOption({
               title: {
-                  text: 'Line Chart'
+                  text: ''
               },
               tooltip: {
                   trigger: 'axis'
               },
               legend: {
-                  data: ['邮件营销', '联盟广告', '搜索引擎']
+                  data: ['浏览器', '操作系统', '终端']
               },
               grid: {
                   left: '3%',
@@ -129,39 +221,21 @@ export default {
               xAxis: {
                   type: 'category',
                   boundaryGap: false,
-                  data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                  data: this.dateData
               },
               yAxis: {
                   type: 'value'
               },
-              series: [
-                  {
-                      name: '邮件营销',
-                      type: 'line',
-                      stack: '总量',
-                      data: [120, 132, 101, 134, 90, 230, 210]
-                  },
-                  {
-                      name: '联盟广告',
-                      type: 'line',
-                      stack: '总量',
-                      data: [220, 182, 191, 234, 290, 330, 310]
-                  },
-                  {
-                      name: '搜索引擎',
-                      type: 'line',
-                      stack: '总量',
-                      data: [820, 932, 901, 934, 1290, 1330, 1320]
-                  }
-              ]
+              series: data
           });
       },
-      drawPieChart() {
-          this.chartPie = echarts.init(document.getElementById('chartPie'));
-          this.chartPie.setOption({
+     
+      drawPieChart1(data) {
+          this.chartPie1 = echarts.init(document.getElementById('chartPie1'));
+          this.chartPie1.setOption({
               title: {
-                  text: 'Pie Chart',
-                  subtext: '纯属虚构',
+                  text: '',
+                  subtext: '',
                   x: 'center'
               },
               tooltip: {
@@ -171,7 +245,7 @@ export default {
               legend: {
                   orient: 'vertical',
                   left: 'left',
-                  data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+                  data: ['浏览器', '操作系统', '终端']
               },
               series: [
                   {
@@ -179,13 +253,7 @@ export default {
                       type: 'pie',
                       radius: '55%',
                       center: ['50%', '60%'],
-                      data: [
-                          { value: 335, name: '直接访问' },
-                          { value: 310, name: '邮件营销' },
-                          { value: 234, name: '联盟广告' },
-                          { value: 135, name: '视频广告' },
-                          { value: 1548, name: '搜索引擎' }
-                      ],
+                      data: data,
                       itemStyle: {
                           emphasis: {
                               shadowBlur: 10,
@@ -197,12 +265,12 @@ export default {
               ]
           });
       },
-      drawPieChart1() {
-          this.chartPie = echarts.init(document.getElementById('chartPie1'));
-          this.chartPie.setOption({
+      drawPieChart2(data) {
+          this.chartPie2 = echarts.init(document.getElementById('chartPie2'));
+          this.chartPie2.setOption({
               title: {
-                  text: 'Pie Chart',
-                  subtext: '纯属虚构',
+                  text: '',
+                  subtext: '',
                   x: 'center'
               },
               tooltip: {
@@ -212,7 +280,7 @@ export default {
               legend: {
                   orient: 'vertical',
                   left: 'left',
-                  data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+                  data: ['浏览器', '操作系统', '终端']
               },
               series: [
                   {
@@ -220,13 +288,7 @@ export default {
                       type: 'pie',
                       radius: '55%',
                       center: ['50%', '60%'],
-                      data: [
-                          { value: 335, name: '直接访问' },
-                          { value: 310, name: '邮件营销' },
-                          { value: 234, name: '联盟广告' },
-                          { value: 135, name: '视频广告' },
-                          { value: 1548, name: '搜索引擎' }
-                      ],
+                      data: data,
                       itemStyle: {
                           emphasis: {
                               shadowBlur: 10,
@@ -238,12 +300,12 @@ export default {
               ]
           });
       },
-      drawPieChart2() {
-          this.chartPie = echarts.init(document.getElementById('chartPie2'));
-          this.chartPie.setOption({
+      drawPieChart3(data) {
+          this.chartPie3 = echarts.init(document.getElementById('chartPie3'));
+          this.chartPie3.setOption({
               title: {
-                  text: 'Pie Chart',
-                  subtext: '纯属虚构',
+                  text: '',
+                  subtext: '',
                   x: 'center'
               },
               tooltip: {
@@ -253,7 +315,7 @@ export default {
               legend: {
                   orient: 'vertical',
                   left: 'left',
-                  data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+                  data: ['浏览器', '操作系统', '终端']
               },
               series: [
                   {
@@ -261,13 +323,7 @@ export default {
                       type: 'pie',
                       radius: '55%',
                       center: ['50%', '60%'],
-                      data: [
-                          { value: 335, name: '直接访问' },
-                          { value: 310, name: '邮件营销' },
-                          { value: 234, name: '联盟广告' },
-                          { value: 135, name: '视频广告' },
-                          { value: 1548, name: '搜索引擎' }
-                      ],
+                      data: data,
                       itemStyle: {
                           emphasis: {
                               shadowBlur: 10,
@@ -278,98 +334,30 @@ export default {
                   }
               ]
           });
-      },
-      drawPieChart3() {
-          this.chartPie = echarts.init(document.getElementById('chartPie3'));
-          this.chartPie.setOption({
-              title: {
-                  text: 'Pie Chart',
-                  subtext: '纯属虚构',
-                  x: 'center'
-              },
-              tooltip: {
-                  trigger: 'item',
-                  formatter: "{a} <br/>{b} : {c} ({d}%)"
-              },
-              legend: {
-                  orient: 'vertical',
-                  left: 'left',
-                  data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
-              },
-              series: [
-                  {
-                      name: '访问来源',
-                      type: 'pie',
-                      radius: '55%',
-                      center: ['50%', '60%'],
-                      data: [
-                          { value: 335, name: '直接访问' },
-                          { value: 310, name: '邮件营销' },
-                          { value: 234, name: '联盟广告' },
-                          { value: 135, name: '视频广告' },
-                          { value: 1548, name: '搜索引擎' }
-                      ],
-                      itemStyle: {
-                          emphasis: {
-                              shadowBlur: 10,
-                              shadowOffsetX: 0,
-                              shadowColor: 'rgba(0, 0, 0, 0.5)'
-                          }
-                      }
-                  }
-              ]
-          });
-      },
-      handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
-      },
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
-      },
-      handleEdit(index, row) {
-        console.log(index, row);
-      },
-      handleDelete(index, row) {
-        console.log(index, row);
       },
       onQuery(){
-        console.log(`查询`);
-      },
-      drawCharts() {
-          this.drawLineChart()
-          this.drawPieChart()
-          this.drawPieChart1()
-          this.drawPieChart2()
-          this.drawPieChart3()
+        this.getFunctionCount(this.pageForm.select,this.pageForm.Time);
+
       }
+
     },
 
 	mounted: function () {
-	    this.drawCharts()
+
+     var date= utils.getWeek();
+     var date1= date[0],date2=date[1];
+     this.pageForm.Time=[new Date(date1), new Date(date2)];
+     this.getFunctionList();
+
+
 	},
 	updated: function () {
-	    this.drawCharts()
+	    //this.drawCharts()
 	}
   };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
 </style>
